@@ -5,18 +5,21 @@ export default {
 	data () {
 		return {
       songs: this.fetchSongs(),
-      trackId: null
+      playlists: this.fetchPlaylists(),
+      trackId: '',
+      playlistName: ''
 		}
 	},
 
   methods: {
 
     /**
-     * Retrieves all songs for a playlist.
+     * Retrieves all songs for a playlist from Firebase.
      */
-    fetchSongs: function() {
-      var self = this;
-      var songsRef = firebase.database().ref('songs/').once('value').then(function(snapshot) {
+    fetchSongs() {
+      const self = this;
+      const songsRef = firebase.database().ref('songs/');
+      songsRef.once('value').then(function (snapshot) {
         console.log('songs snapshot!', snapshot.val());
         self.songs = snapshot.val();
         return snapshot.val();
@@ -24,22 +27,36 @@ export default {
     },
 
     /**
+     * Retrieves all playlists from Firebase.
+     */
+    fetchPlaylists() {
+      const self = this;
+      const playlistsRef = firebase.database().ref('playlists/');
+      playlistsRef.once('value').then(function (snapshot) {
+        console.log('playlists snapshot!', snapshot.val());
+        self.playlists = snapshot.val();
+        return snapshot.val();
+      });
+    },
+
+    /**
      * Retrieves song data from SoundCloud based on the queried track ID.
      */
-    getSong: function() {
-      var soundcloudURL = 'http://api.soundcloud.com/tracks/';
-      var clientID = '?client_id=22aa56e479e5b0a4968c22120c32bde8';
-      var self = this;
+    getSong() {
+      const soundcloudURL = 'http://api.soundcloud.com/tracks/';
+      const clientID = '?client_id=22aa56e479e5b0a4968c22120c32bde8';
+      const self = this;
 
-      this.$http.get(soundcloudURL + this.trackId + clientID).then(function(response) {
-        var song = JSON.parse(response.bodyText);
-        console.log(song);
-        var songData = {
+      this.$http.get(soundcloudURL + this.trackId + clientID).then(function (response) {
+        const song = JSON.parse(response.bodyText);
+        // Grab data we need in the app.
+        const songData = {
           id: song.id,
           title: song.title,
           artist: song.user.username,
           artwork: song.artwork_url || song.user.avatar_url
         };
+        // Save song to Firebase.
         self.addSong(songData);
       });
     },
@@ -49,12 +66,27 @@ export default {
      *
      * @param obj song The song data to be sent to Firebas.
      */
-    addSong: function(song) {
-      var songsRef = firebase.database().ref('songs/' + song.id);
+    addSong(song) {
+      const songsRef = firebase.database().ref('songs/' + song.id);
       // Save song to Firebase.
       songsRef.set(song);
       // Update the master list of songs.
       this.fetchSongs();
+    },
+
+    /**
+     *  Adds a playlist to firebase.
+     */
+    addPlaylist() {
+      const key = firebase.database().ref('playlists/').push().key;
+      const playlistRef = firebase.database().ref('playlists/' + key);
+      // Save song to Firebase.
+      playlistRef.set({
+        id: key,
+        title:this.playlistName
+      });
+
+      this.fetchPlaylists();
     }
   }
 }
@@ -62,13 +94,30 @@ export default {
 
 <template>
   <div>
-    <ul id="playlist">
+    <router-link to="/home">Go to HOME</router-link>
+    <div>
+      <ul>
+        <li v-for="playlist in playlists">
+          <a href="#">
+            {{playlist.title}}
+          </a>
+        </li>
+      </ul>
+    </div>
+    <ul>
       <li v-for="song in songs">
-        <img v-bind:src="song.artwork"/>{{song.title}} - <strong>{{song.artist}}</strong>
+        <a href="#">
+          <img v-bind:src="song.artwork"/>{{song.title}} - <strong>{{song.artist}}</strong>
+        </a>
       </li>
     </ul>
     <form v-on:submit.prevent="getSong">
       <input v-model="trackId" type="input" style="width:50%;" placeholder="SoundCloud song ID ex: 339643264">
+      <input type="submit" value="add">
+    </form>
+    <br>
+    <form v-on:submit.prevent="addPlaylist">
+      <input v-model="playlistName" type="input" style="width:50%;" placeholder="Playlist Name">
       <input type="submit" value="add">
     </form>
   </div>

@@ -8,13 +8,14 @@ Vue.use(VueResource);
 export default {
   name: 'app',
   components: {
-    Playlist
+    Playlist,
 	}  
 }
 </script>
 
 <template>
   <div id="app">
-	  <playlist></playlist>
+		<router-link to="/playlist">Go to Playlist</router-link>
+		<router-view></router-view>
   </div>
 </template>
