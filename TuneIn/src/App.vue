@@ -1,6 +1,5 @@
 <script>
-import SongItem from './components/SongItem'
-import SongForm from './components/SongForm'
+import Playlist from './components/Playlist'
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 
@@ -9,15 +8,13 @@ Vue.use(VueResource);
 export default {
   name: 'app',
   components: {
-    SongItem,
-    SongForm
-  }
+    Playlist
+	}  
 }
 </script>
 
 <template>
   <div id="app">
-    <song-item></song-item>
-    <song-form></song-form>
+	  <playlist></playlist>
   </div>
 </template>

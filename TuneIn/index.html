@@ -4,21 +4,35 @@
 	<head>
 	  <meta charset="utf-8">
 	  <title>tunein</title>
+		<script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
 	</head>
+
+	<script>
+		var config = {
+      apiKey: "AIzaSyADnXp6O1y359GcjSPylVqc7-kHI1or3LI",
+      authDomain: "tunein-db.firebaseapp.com",
+      databaseURL: "https://tunein-db.firebaseio.com",
+      projectId: "tunein-db",
+      storageBucket: "",
+      messagingSenderId: "529266968820"
+    };
+
+    firebase.initializeApp(config);
+	</script>
 
 	<body>
 	  <div id="app"></div>
-	  <!-- built files will be auto injected -->
 	</body>
+
 	<script src="https://connect.soundcloud.com/sdk/sdk-3.2.1.js"></script>
 	<script>
 		SC.initialize({
-		  client_id: '22aa56e479e5b0a4968c22120c32bde8'
+			client_id: '22aa56e479e5b0a4968c22120c32bde8'
 		});
 
 		// stream track id 293
 		SC.stream('/tracks/293').then(function(player) {
-		  // player
+		// player
 		});
 	</script>
 </html>
