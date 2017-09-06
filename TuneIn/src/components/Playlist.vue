@@ -7,9 +7,12 @@ export default {
       songs: this.fetchSongs(),
       playlists: this.fetchPlaylists(),
       trackId: '',
-      playlistName: ''
+      playlistName: '',
+      playlistId: ''
 		}
 	},
+
+  props: ['id'],
 
   methods: {
 
@@ -21,8 +24,11 @@ export default {
       const songsRef = firebase.database().ref('songs/');
       songsRef.once('value').then(function (snapshot) {
         console.log('songs snapshot!', snapshot.val());
-        self.songs = snapshot.val();
-        return snapshot.val();
+        var songs = snapshot.val();
+        if (songs) {
+          self.songs = songs[self.id];
+          return songs[self.id];
+        }
       });
     },
 
@@ -31,9 +37,8 @@ export default {
      */
     fetchPlaylists() {
       const self = this;
-      const playlistsRef = firebase.database().ref('playlists/');
+      const playlistsRef = firebase.database().ref('playlists/' + this.$route.params.id);
       playlistsRef.once('value').then(function (snapshot) {
-        console.log('playlists snapshot!', snapshot.val());
         self.playlists = snapshot.val();
         return snapshot.val();
       });
@@ -66,8 +71,9 @@ export default {
      *
      * @param obj song The song data to be sent to Firebas.
      */
-    addSong(song) {
-      const songsRef = firebase.database().ref('songs/' + song.id);
+    addSong(song, playlist) {
+      const key = firebase.database().ref('songs/' + this.id).push().key;
+      const songsRef = firebase.database().ref('songs/' + this.id + '/' + key );
       // Save song to Firebase.
       songsRef.set(song);
       // Update the master list of songs.
@@ -94,30 +100,15 @@ export default {
 
 <template>
   <div>
-    <router-link to="/home">Go to HOME</router-link>
-    <div>
-      <ul>
-        <li v-for="playlist in playlists">
-          <a href="#">
-            {{playlist.title}}
-          </a>
-        </li>
-      </ul>
-    </div>
     <ul>
       <li v-for="song in songs">
-        <a href="#">
+        <a>
           <img v-bind:src="song.artwork"/>{{song.title}} - <strong>{{song.artist}}</strong>
         </a>
       </li>
     </ul>
     <form v-on:submit.prevent="getSong">
       <input v-model="trackId" type="input" style="width:50%;" placeholder="SoundCloud song ID ex: 339643264">
-      <input type="submit" value="add">
-    </form>
-    <br>
-    <form v-on:submit.prevent="addPlaylist">
-      <input v-model="playlistName" type="input" style="width:50%;" placeholder="Playlist Name">
       <input type="submit" value="add">
     </form>
   </div>

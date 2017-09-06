@@ -15,7 +15,7 @@ export default {
 
 <template>
   <div id="app">
-		<router-link to="/playlist">Go to Playlist</router-link>
+		<router-link to="/home">Home</router-link>
 		<router-view></router-view>
   </div>
 </template>

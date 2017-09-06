@@ -13,16 +13,21 @@ Vue.config.productionTip = false
 const router = new VueRouter({
 	routes: [
 		{
+			path: '/',
+			components: {
+				default: Home
+			}
+		},
+		{
 			path: '/home',
 			components: {
 				default: Home
 			}
 		},
 		{
-			path: '/playlist',
-			components: {
-				default: Playlist
-			}
+			path: '/playlist/:id',
+			component: Playlist,
+			props: true
 		}
 	]
 });
