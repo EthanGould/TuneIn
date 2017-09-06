@@ -5,10 +5,13 @@ export default {
 	data () {
 		return {
       songs: this.fetchSongs(),
-      playlists: this.fetchPlaylists(),
-      trackId: '',
+      playlists: this.fetchPlaylist(),
       playlistName: '',
-      playlistId: ''
+      trackId: '',
+      trackCount: 0,
+      player: '',
+      currentSong: '',
+      isPlaying: false
 		}
 	},
 
@@ -20,14 +23,11 @@ export default {
      * Retrieves all songs for a playlist from Firebase.
      */
     fetchSongs() {
-      const self = this;
       const songsRef = firebase.database().ref('songs/');
-      songsRef.once('value').then(function (snapshot) {
-        console.log('songs snapshot!', snapshot.val());
+      songsRef.once('value').then((snapshot) => {
         var songs = snapshot.val();
         if (songs) {
-          self.songs = songs[self.id];
-          return songs[self.id];
+          this.songs = songs[this.id];
         }
       });
     },
@@ -35,12 +35,11 @@ export default {
     /**
      * Retrieves all playlists from Firebase.
      */
-    fetchPlaylists() {
-      const self = this;
+    fetchPlaylist() {
       const playlistsRef = firebase.database().ref('playlists/' + this.$route.params.id);
-      playlistsRef.once('value').then(function (snapshot) {
-        self.playlists = snapshot.val();
-        return snapshot.val();
+      playlistsRef.once('value').then((snapshot) => {
+        this.playlists = snapshot.val();
+        this.playlistName = snapshot.val().title;
       });
     },
 
@@ -50,9 +49,8 @@ export default {
     getSong() {
       const soundcloudURL = 'http://api.soundcloud.com/tracks/';
       const clientID = '?client_id=22aa56e479e5b0a4968c22120c32bde8';
-      const self = this;
 
-      this.$http.get(soundcloudURL + this.trackId + clientID).then(function (response) {
+      this.$http.get(soundcloudURL + this.trackId + clientID).then((response) => {
         const song = JSON.parse(response.bodyText);
         // Grab data we need in the app.
         const songData = {
@@ -62,7 +60,7 @@ export default {
           artwork: song.artwork_url || song.user.avatar_url
         };
         // Save song to Firebase.
-        self.addSong(songData);
+        this.addSong(songData);
       });
     },
 
@@ -89,20 +87,43 @@ export default {
       // Save song to Firebase.
       playlistRef.set({
         id: key,
-        title:this.playlistName
+        title: this.playlistName
       });
 
-      this.fetchPlaylists();
+      this.fetchPlaylist();
+    },
+
+    toggleSongState(songId) {
+      // If the song was clicked again, pause it.
+      if (this.currentSong === songId && this.isPlaying) {
+        this.player.pause();
+        this.currentSong = '';
+      // Otherwise, play the newly selected song.
+      } else {
+        SC.stream('/tracks/' + songId).then((player) => {
+          player.play();
+          this.player = player;
+          this.isPlaying = true;
+          this.currentSong = songId;
+        });
+      }
     }
   }
 }
 </script>
 
+<style>
+  .active {
+    background-color: lightgrey;
+  }
+</style>
+
 <template>
   <div>
+    <h3>Viewing: {{playlistName}}</h3>
     <ul>
-      <li v-for="song in songs">
-        <a>
+      <li v-for="song in songs" v-bind:class="{ active: currentSong === song.id }">
+        <a href="javascript:;" v-on:click="toggleSongState(song.id)">
           <img v-bind:src="song.artwork"/>{{song.title}} - <strong>{{song.artist}}</strong>
         </a>
       </li>

@@ -4,7 +4,7 @@ export default {
 	data() {
 		return {
 			playlists: this.fetchPlaylists(),
-			isTrue: true
+			playlistName: ''
 		}
 	},
 
@@ -20,6 +20,21 @@ export default {
         self.playlists = snapshot.val();
         return snapshot.val();
       });
+    },
+
+    /**
+     *  Adds a playlist to firebase.
+     */
+    addPlaylist() {
+      const key = firebase.database().ref('playlists/').push().key;
+      const playlistRef = firebase.database().ref('playlists/' + key);
+      // Save song to Firebase.
+      playlistRef.set({
+        id: key,
+        title: this.playlistName
+      });
+      this.playlistName = '';
+      this.fetchPlaylists();
     }
 	}
 }
@@ -36,5 +51,9 @@ export default {
       </li>
     </ul>
     <p>or create new one!</p>
+    <form v-on:submit.prevent="addPlaylist">
+      <input v-model="playlistName" type="input" style="width:50%;" placeholder="Playlist name">
+      <input type="submit" value="add">
+    </form>
   </div>
 </template>
