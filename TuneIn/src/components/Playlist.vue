@@ -4,13 +4,13 @@ export default {
 
 	data () {
 		return {
-      songs: this.fetchSongs(),
-      playlists: this.fetchPlaylist(),
+      tracks: this.fetchTracks(),
+      playlist: this.fetchPlaylist(),
       playlistName: '',
-      trackId: '',
+      trackUrl: '',
       trackCount: 0,
       player: '',
-      currentSong: '',
+      currentTrack: '',
       isPlaying: false
 		}
 	},
@@ -20,91 +20,75 @@ export default {
   methods: {
 
     /**
-     * Retrieves all songs for a playlist from Firebase.
+     * Retrieves all tracks for a playlist from Firebase.
      */
-    fetchSongs() {
-      const songsRef = firebase.database().ref('songs/');
-      songsRef.once('value').then((snapshot) => {
-        var songs = snapshot.val();
-        if (songs) {
-          this.songs = songs[this.id];
-        }
+    fetchTracks() {
+      const tracksRef = firebase.database().ref('tracks/' + this.id);
+      tracksRef.once('value').then((snapshot) => {
+        this.tracks = snapshot.val() || {};
       });
     },
 
     /**
-     * Retrieves all playlists from Firebase.
+     * Retrieves a playlist from Firebase.
      */
     fetchPlaylist() {
-      const playlistsRef = firebase.database().ref('playlists/' + this.$route.params.id);
-      playlistsRef.once('value').then((snapshot) => {
-        this.playlists = snapshot.val();
+      const playlistRef = firebase.database().ref('playlists/' + this.$route.params.id);
+      playlistRef.once('value').then((snapshot) => {
+        this.playlist = snapshot.val();
         this.playlistName = snapshot.val().title;
       });
     },
 
     /**
-     * Retrieves song data from SoundCloud based on the queried track ID.
+     * Retrieves track data from SoundCloud based on the queried track ID.
      */
-    getSong() {
-      const soundcloudURL = 'http://api.soundcloud.com/tracks/';
-      const clientID = '?client_id=22aa56e479e5b0a4968c22120c32bde8';
-
-      this.$http.get(soundcloudURL + this.trackId + clientID).then((response) => {
-        const song = JSON.parse(response.bodyText);
+    getTrack() {
+      SC.get('/resolve?url=' + this.trackUrl).then((track) => {
         // Grab data we need in the app.
-        const songData = {
-          id: song.id,
-          title: song.title,
-          artist: song.user.username,
-          artwork: song.artwork_url || song.user.avatar_url
+        const trackData = {
+          id: track.id,
+          title: track.title,
+          artist: track.user.username,
+          artwork: track.artwork_url || track.user.avatar_url
         };
-        // Save song to Firebase.
-        this.addSong(songData);
+        // Save track to Firebase.
+        this.addTrack(trackData);
+        // Reset track URL input.
+        this.trackUrl = '';
       });
     },
 
     /**
-     * Adds a song to Firebase.
+     * Adds a track to Firebase.
      *
-     * @param obj song The song data to be sent to Firebas.
+     * @param obj track The track data to be sent to Firebase.
      */
-    addSong(song, playlist) {
-      const key = firebase.database().ref('songs/' + this.id).push().key;
-      const songsRef = firebase.database().ref('songs/' + this.id + '/' + key );
-      // Save song to Firebase.
-      songsRef.set(song);
-      // Update the master list of songs.
-      this.fetchSongs();
+    addTrack(track) {
+      const key = firebase.database().ref('tracks/' + this.id).push().key;
+      const tracksRef = firebase.database().ref('tracks/' + this.id + '/' + key );
+      // Save track to Firebase.
+      tracksRef.set(track);
+      // Update the master list of tracks.
+      this.fetchTracks();
     },
 
     /**
-     *  Adds a playlist to firebase.
+     *  Pause or play a track from SoundCloud.
      */
-    addPlaylist() {
-      const key = firebase.database().ref('playlists/').push().key;
-      const playlistRef = firebase.database().ref('playlists/' + key);
-      // Save song to Firebase.
-      playlistRef.set({
-        id: key,
-        title: this.playlistName
-      });
-
-      this.fetchPlaylist();
-    },
-
-    toggleSongState(songId) {
-      // If the song was clicked again, pause it.
-      if (this.currentSong === songId && this.isPlaying) {
+    toggleTrackState(trackId) {
+      // If the track was clicked again, pause it.
+      if (this.currentTrack === trackId && this.isPlaying) {
         this.player.pause();
-        this.currentSong = '';
-      // Otherwise, play the newly selected song.
+        this.currentTrack = '';
+
+      // Otherwise, play the newly selected track.
       } else {
-        SC.stream('/tracks/' + songId).then((player) => {
+        SC.stream('/tracks/' + trackId).then((player) => {
           player.play();
           this.player = player;
           this.isPlaying = true;
-          this.currentSong = songId;
+          this.currentTrack = trackId;
         });
       }
     }
@@ -120,16 +104,16 @@ export default {
 
 <template>
   <div>
-    <h3>Viewing: {{playlistName}}</h3>
+    <h3>Viewing: {{playlistName}} ({{Object.keys(tracks || {}).length}} tracks)</h3>
     <ul>
-      <li v-for="song in songs" v-bind:class="{ active: currentSong === song.id }">
-        <a href="javascript:;" v-on:click="toggleSongState(song.id)">
-          <img v-bind:src="song.artwork"/>{{song.title}} - <strong>{{song.artist}}</strong>
+      <li v-for="track in tracks" v-bind:class="{ active: currentTrack === track.id }">
+        <a href="javascript:;" v-on:click="toggleTrackState(track.id)">
+          <img v-bind:src="track.artwork"/>{{track.title}} - <strong>{{track.artist}}</strong>
         </a>
       </li>
     </ul>
-    <form v-on:submit.prevent="getSong">
-      <input v-model="trackId" type="input" style="width:50%;" placeholder="SoundCloud song ID ex: 339643264">
+    <form v-on:submit.prevent="getTrack">
+      <input v-model="trackUrl" type="input" style="width:50%;" placeholder="SoundCloud URL">
       <input type="submit" value="add">
     </form>
   </div>
