@@ -1,12 +1,17 @@
 <script>
+import SiteHeader from './SiteHeader';
+
 export default {
 	name: 'welcome',
 	data() {
 		return {
 			playlists: this.fetchPlaylists(),
-			playlistName: ''
 		}
 	},
+
+  components: {
+    SiteHeader
+  },
 
 	methods: {
 
@@ -20,21 +25,6 @@ export default {
         self.playlists = snapshot.val();
         return snapshot.val();
       });
-    },
-
-    /**
-     *  Adds a playlist to firebase.
-     */
-    addPlaylist() {
-      const key = firebase.database().ref('playlists/').push().key;
-      const playlistRef = firebase.database().ref('playlists/' + key);
-      // Save song to Firebase.
-      playlistRef.set({
-        id: key,
-        title: this.playlistName
-      });
-      this.playlistName = '';
-      this.fetchPlaylists();
     }
 	}
 }
@@ -42,18 +32,16 @@ export default {
 
 <template>
 	<div>
-		<div><h3>Welcome to TuneIn!</h3><p>Select a playlist below</p></div>
-    <ul>
-      <li v-for="playlist in playlists">
-        <a v-bind:href="'#playlist/' + playlist.id">
+    <site-header v-bind:headerText="'TuneIn'" v-bind:homescreen="true"></site-header>
+    <ul class="list">
+      <li class="list__item">
+        <a v-bind:href="'#playlist/new'" class="list__link list__link--cta">New Playlist +</a>
+      </li>
+      <li v-for="playlist in playlists" class="list__item">
+        <a v-bind:href="'#playlist/' + playlist.id" class="list__link">
           {{playlist.title}}
         </a>
       </li>
     </ul>
-    <p>or create new one!</p>
-    <form v-on:submit.prevent="addPlaylist">
-      <input v-model="playlistName" type="input" style="width:50%;" placeholder="Playlist name">
-      <input type="submit" value="add">
-    </form>
   </div>
 </template>

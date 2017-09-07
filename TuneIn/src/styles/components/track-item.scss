@@ -1,0 +1,35 @@
+$track: 'track';
+
+.#{$track} {
+	position: relative;
+
+	&--active {
+		background: $tequila-sunrise--light;
+	}
+
+	&__img {
+		width: 100px;
+		margin-right: 5px;
+	}
+
+	&__details {
+		display: inline-block;
+		width: calc(100% - 110px);
+		vertical-align: top;
+	}
+
+	&__title {
+		font-weight: 800;
+		display: block;
+	}
+
+	&__artist {
+		display: block;
+	}
+
+	&__progress {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+}

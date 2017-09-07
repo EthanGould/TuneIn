@@ -1,4 +1,7 @@
 <script>
+import SiteHeader from './SiteHeader';
+import TrackItem from './TrackItem';
+
 export default {
 	name: 'playlist',
 
@@ -7,14 +10,14 @@ export default {
       tracks: this.fetchTracks(),
       playlist: this.fetchPlaylist(),
       playlistName: '',
-      trackUrl: '',
-      trackCount: 0,
-      player: '',
-      currentTrack: '',
-      trackProgress: '',
-      isPlaying: false
+      trackUrl: ''
 		}
 	},
+
+  components: {
+    TrackItem,
+    SiteHeader
+  },
 
   props: ['id'],
 
@@ -28,8 +31,6 @@ export default {
       tracksRef.on('value', (snapshot) => {
         this.tracks = snapshot.val() || {};
       });
-
-      return {};
     },
 
     /**
@@ -37,7 +38,7 @@ export default {
      */
     fetchPlaylist() {
       const playlistRef = firebase.database().ref('playlists/' + this.$route.params.id);
-      playlistRef.once('value', (snapshot) => {
+      playlistRef.on('value', (snapshot) => {
         this.playlist = snapshot.val();
         this.playlistName = snapshot.val().title;
       });
@@ -75,69 +76,27 @@ export default {
       track.id = key;
       // Save track to Firebase.
       tracksRef.set(track);
-      // Update the master list of tracks.
-      this.fetchTracks();
+
+      this.showNewestAddition();
     },
 
-    /**
-     *  Pause or play a track from SoundCloud.
-     */
-    toggleTrackState(track) {
-      console.log('all tracks', this.tracks);
-      // If the track was clicked again, pause it.
-      if (this.currentTrack.id === track.id && this.isPlaying) {
-        this.player.pause();
-        this.currentTrack = '';
-
-      // Otherwise, play the newly selected track.
-      } else {
-        SC.stream('/tracks/' + track.soundCloudId).then((player) => {
-          player.play();
-          this.player = player;
-          this.isPlaying = true;
-          this.currentTrack = this.tracks[track.id];
-          player.on('finish', this.playNextTrack);
-          player.on('time', this.updateTrackProgress);
-        });
-      }
-    },
-
-    updateTrackProgress(milliSeconds) {
-      this.trackProgress = Math.floor(milliSeconds / this.currentTrack.duration * 100);
-      console.log(this.trackProgress);
-    },
-
-    playNextTrack() {
-      const arr = Object.keys(this.tracks).map(function(val) { return val });
-      const nextTrackIndex = arr.indexOf(this.currentTrack.id);
-      const nextTrackId = arr[nextTrackIndex+1];
-      const nextTrack = this.tracks[nextTrackId];
-      this.toggleTrackState(nextTrack)
+    showNewestAddition() {
+      setTimeout(() => {
+        const lastTrack = document.querySelector('.track:last-child');
+        lastTrack.scrollIntoView({behavior: 'smooth'});
+      }, 100); // Wait for Vue to render newest addition.
     }
   }
 }
 </script>
 
-<style>
-  .active {
-    background-color: lightgrey;
-  }
-</style>
-
 <template>
   <div>
-    <h3>{{playlistName}} ({{Object.keys(tracks || {}).length}} tracks)</h3>
-    <ul>
-      <li v-for="track in tracks" v-bind:class="{ active: currentTrack.id === track.id }">
-        <a href="javascript:;" v-on:click="toggleTrackState(track)">
-          <img v-bind:src="track.artwork"/>{{track.title}} - <strong>{{track.artist}}</strong>
-          <span v-if="currentTrack.id === track.id">{{trackProgress}}%</span>
-        </a>
-      </li>
-    </ul>
-    <form v-on:submit.prevent="getTrack">
-      <input v-model="trackUrl" type="input" style="width:50%;" placeholder="SoundCloud URL">
-      <input type="submit" value="add">
+    <site-header v-bind:headerText="playlistName + ' (' + Object.keys(tracks || 0).length + ' tracks)'"></site-header>
+    <track-item v-bind:tracks="tracks"></track-item>
+    <form v-on:submit.prevent="getTrack" class="form form--inline">
+      <input v-model="trackUrl" type="input" class="form__input" placeholder="SoundCloud URL">
+      <input type="submit" value="add" class="form__submit">
     </form>
   </div>
 </template>

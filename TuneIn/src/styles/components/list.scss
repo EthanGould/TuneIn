@@ -1,0 +1,24 @@
+$list: 'list';
+
+.#{$list} {
+
+	&__item {
+		border-bottom: 1px solid $gray;
+		font-family: sans-serif;
+		transition: background-color 0.2s;
+
+		&:not(.track--active):hover {
+			background: $light-gray;
+		}
+	}
+
+	&__link {
+		display: block;
+		padding: 10px;
+		color: $black;
+
+		&--cta {
+			color: $green;
+		}
+	}
+}

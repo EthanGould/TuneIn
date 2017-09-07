@@ -1,0 +1,56 @@
+$form: 'form';
+
+.#{$form} {
+	padding: 10px;
+	max-width: 300px;
+
+	&--inline {
+		position: fixed;
+  	bottom: 0;
+  	width: 100%;
+		max-width: 100%;
+		background: $tequila-sunrise--mid;
+
+		.#{$form} {
+			&__input {
+				float: left;
+				width: 74%;
+				margin: 0 1% 0 0;
+			}
+
+			&__submit {
+				float: left;
+				width: 25%;
+				padding: 12px; // Align with height of input.
+				text-align: center;
+			}
+		}
+	}
+	
+	&__input {
+		width: 100%;
+		margin-bottom: 10px;
+		padding: 10px;
+	}
+
+	&__select {
+		margin-bottom: 10px;
+	}
+
+	&__label {
+		font-family: sans-serif;
+	}
+
+	&__submit {
+		padding: 10px;
+		background: $green;
+		color: $white;
+		border: none;
+		width: 100%;
+		transition: 0.2s;
+
+		&:hover {
+			background-color: $dark-green;
+		}
+	}
+}

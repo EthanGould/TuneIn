@@ -1,5 +1,4 @@
 <script>
-import Playlist from './components/Playlist'
 import Vue from 'vue'
 import VueResource from 'vue-resource'
 
@@ -7,15 +6,11 @@ Vue.use(VueResource);
 
 export default {
   name: 'app',
-  components: {
-    Playlist,
-	}  
 }
 </script>
 
 <template>
-  <div id="app">
-		<router-link to="/home">Home</router-link>
+  <div id="app" style="margin: 50px 0;">
 		<router-view></router-view>
   </div>
 </template>

@@ -1,0 +1,15 @@
+$gray: #a2a2a2;
+$dark-gray: darken($gray, 20%);
+$light-gray: lighten($gray, 20%);
+$white: white;
+$black: black;
+$red: #fc4d4d;
+$orange: orange;
+$light-orange: rgb(255, 213, 0);
+$magenta: #c600ff;
+$green: #00bc0f;
+$dark-green: darken($green, 10%);
+$tequila-sunrise--full: linear-gradient($magenta, $red, $light-orange);
+$tequila-sunrise--mid: linear-gradient(rgba($magenta, 0.9), rgba($red, 0.9), rgba($light-orange, 0.9));
+$tequila-sunrise--light: linear-gradient(rgba($magenta, 0.2), rgba($red, 0.2), rgba($light-orange, 0.2));
+
