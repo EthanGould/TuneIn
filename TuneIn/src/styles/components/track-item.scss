@@ -4,10 +4,15 @@ $track: 'track';
 	position: relative;
 
 	&--active {
-		background: $tequila-sunrise--light;
+		background: rgba($primary, 0.2);
+	}
+
+	&--external {
+		background: $orange;
 	}
 
 	&__img {
+		height: 100px;
 		width: 100px;
 		margin-right: 5px;
 	}

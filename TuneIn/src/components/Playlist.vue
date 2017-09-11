@@ -55,13 +55,29 @@ export default {
           duration: track.duration,
           title: track.title,
           artist: track.user.username,
-          artwork: track.artwork_url || track.user.avatar_url
+          artwork: track.artwork_url || track.user.avatar_url,
+          isLink: false,
+          soundCloudLink: this.trackUrl
         };
+
         // Save track to Firebase.
         this.addTrack(trackData);
-        // Reset track URL input.
-        this.trackUrl = '';
+      }).catch((error) => {
+        if (403 === error.status) {
+          const trackData = {
+            soundCloudId: null,
+            duration: null,
+            title: 'Listen on SoundCloud',
+            artist: null,
+            artwork: null,
+            isLink: true,
+            soundCloudLink: this.trackUrl
+          };
+          // Save track to Firebase.
+          this.addTrack(trackData);
+        }
       });
+
     },
 
     /**
@@ -76,13 +92,13 @@ export default {
       track.id = key;
       // Save track to Firebase.
       tracksRef.set(track);
-
+      this.trackUrl = '';
       this.showNewestAddition();
     },
 
     showNewestAddition() {
       setTimeout(() => {
-        const lastTrack = document.querySelector('.track:last-child');
+        const lastTrack = document.querySelector('.list__item:last-child');
         lastTrack.scrollIntoView({behavior: 'smooth'});
       }, 100); // Wait for Vue to render newest addition.
     }

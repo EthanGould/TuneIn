@@ -36,12 +36,18 @@ export default {
   <div>
     <site-header v-bind:headerText="'New Playlist'"></site-header>
   	<form v-on:submit.prevent="addPlaylist" class="form">
-      <input v-model="playlistTitle" type="input" class="form__input" placeholder="Playlist name">
-    	<select class="form__select">
-    		<option>Rap</option>
-    		<option>Country</option>
-    		<option>EDM</option>
-    	</select>
+      <label>
+        Playlist Name
+        <input v-model="playlistTitle" type="input" class="form__input">
+      </label>
+      <label>
+        Add a genre
+      	<select class="form__select">
+      		<option>Rap</option>
+      		<option>Country</option>
+      		<option>EDM</option>
+      	</select>
+      </label>
       <input type="submit" value="add" class="form__submit">
     </form>
   </div>
