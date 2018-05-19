@@ -40,15 +40,17 @@ window.eventHandlers = function() {
   });
 
   this.trackForm = document.querySelector('.js-add-track');
-  this.trackForm.addEventListener('submit', window.addTrack);
+  this.trackForm.addEventListener('submit', window.getTrack);
 }
 
 /**
  * Retrieves track data from SoundCloud based on the queried track ID.
  */
 window.getTrack = function() {
-  if ('' === this.trackUrl) { return; }
-  SC.get('/resolve?url=' + this.trackUrl).then((track) => {
+  event.preventDefault();
+  var trackUrl = document.querySelector('.js-add-track').childNodes[1].value;
+  if ('' === trackUrl) { return; }
+  SC.get(`/resolve?url=${trackUrl}`).then((track) => {
     // Grab data we need in the app.
     const trackData = {
       soundCloudId: track.id,
@@ -57,7 +59,7 @@ window.getTrack = function() {
       artist: track.user.username,
       artwork: track.artwork_url || track.user.avatar_url,
       isLink: false,
-      soundCloudLink: this.trackUrl
+      soundCloudLink: trackUrl
     };
 
     // Save track to Firebase.
@@ -74,11 +76,16 @@ window.getTrack = function() {
         soundCloudLink: this.trackUrl
       };
       // Save track to Firebase.
-      this.addTrack(trackData);
+      window.addTrack(trackData);
     }
   });
 }
 
+/**
+ * Adds a track to Firebase.
+ *
+ * @param obj track The track data to be sent to Firebase.
+ */
 window.addTrack = function(track) {
   const key = firebase.database().ref('tracks/-KtMuXZd0QXuWAqJvpUD').push().key;
   const tracksRef = firebase.database().ref('tracks/-KtMuXZd0QXuWAqJvpUD/' + key );
@@ -86,8 +93,7 @@ window.addTrack = function(track) {
   track.id = key;
   // Save track to Firebase.
   tracksRef.set(track);
-  // this.trackUrl = '';
-  // this.$nextTick(this.showNewestAddition);
+  document.querySelector('.js-add-track').childNodes[1].value = '';
 }
 
 /**
