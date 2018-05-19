@@ -40,6 +40,7 @@ export default {
       <li v-for="playlist in playlists" class="list__item">
         <a v-bind:href="'#playlist/' + playlist.id" class="list__link">
           {{playlist.title}}
+          <span v-if="playlist.genre" v-bind:class="playlist.genre" class="list__tag">{{playlist.genre}}</span>
         </a>
       </li>
     </ul>

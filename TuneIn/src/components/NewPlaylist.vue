@@ -6,7 +6,8 @@ export default {
 
 	data() {
 		return {
-			playlistTitle: ''
+			playlistTitle: '',
+      genre: null
 		}
 	},
 
@@ -19,12 +20,14 @@ export default {
      *  Adds a playlist to firebase.
      */
     addPlaylist() {
+      if ('' === this.playlistTitle) { return; }
       const key = firebase.database().ref('playlists/').push().key;
       const playlistRef = firebase.database().ref('playlists/' + key);
       // Save song to Firebase.
       playlistRef.set({
         id: key,
-        title: this.playlistTitle
+        title: this.playlistTitle,
+        genre: this.genre
       });
       this.playlistTitle = '';
     }
@@ -42,10 +45,12 @@ export default {
       </label>
       <label>
         Add a genre
-      	<select class="form__select">
-      		<option>Rap</option>
-      		<option>Country</option>
-      		<option>EDM</option>
+      	<select class="form__select" v-model="genre">
+      		<option value="rap" selected>Rap</option>
+          <option value="pop">Pop</option>
+      		<option value="EMD">EDM</option>
+          <option value="country">Country</option>
+          <option value="instrumental">Instrumental</option>
       	</select>
       </label>
       <input type="submit" value="add" class="form__submit">

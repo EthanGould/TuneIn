@@ -37,6 +37,21 @@ body {
   color: black; }
   .list__link--cta {
     color: #005ed1; }
+.list__tag {
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  margin-left: 5px;
+  border-radius: 8px; }
+  .list__tag.instrumental {
+    background: #ffb04c;
+    color: white; }
+  .list__tag.EDM {
+    background: #00bc0f;
+    color: white; }
+  .list__tag.pop {
+    background: #fc4d4d;
+    color: white; }
 
 .form {
   padding: 10px;
@@ -54,7 +69,9 @@ body {
     .form--inline .form__submit {
       float: left;
       width: 25%;
-      text-align: center; }
+      padding: 11px;
+      text-align: center;
+      cursor: pointer; }
   .form__input {
     width: 100%;
     margin-bottom: 10px;

@@ -21,7 +21,9 @@ $form: 'form';
 			&__submit {
 				float: left;
 				width: 25%;
+				padding: 11px;
 				text-align: center;
+				cursor: pointer;
 			}
 		}
 	}

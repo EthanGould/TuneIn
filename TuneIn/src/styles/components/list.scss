@@ -21,4 +21,27 @@ $list: 'list';
 			color: $primary-dark;
 		}
 	}
+
+	&__tag {
+		font-size: 12px;
+		text-transform: uppercase;
+		padding: 2px 5px;
+		margin-left: 5px;
+		border-radius: 8px;
+
+		&.instrumental {
+			background: darken($orange, 20%);
+			color: $white;
+		}
+
+		&.EDM {
+			background: $green;
+			color: $white;
+		}
+
+		&.pop {
+			background: $red;
+			color: $white;
+		}
+	}
 }
